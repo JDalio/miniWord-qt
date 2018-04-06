@@ -3,11 +3,21 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QScrollArea>
+
+//sen:sentence, 每100个单词是一个句子
+typedef struct sen{
+    //堆块的编号
+    int num;
+    //100个字符的首地址
+    char *a;
+    sen *next;
+}sen,*hsen;
 
 //数据结构中每一行的定义
 typedef struct row{
     int num;//行号
-    char *col;//列数组的首地址
+    hsen h;//每一行数组的首地址
     row *next;
 }row,*list;
 
@@ -39,13 +49,18 @@ private:
 
     /** 编程主要用的后端的，及后端与前端公用的数据 !!!只可增加不可删除**/
 
-    //核心的数据结构
-    list header;
+    //核心的数据结构，每一行的堆就是malloc/new出来的数组
+    list header,cur;
+    hsen cursen;
 
+    //整个数据结构的有效字符的数目
+    int index=0;
+    //整个数据结构在内存中的大小
+    int size=0;
     //后端将数据结构中的数据处理成一个完整的html传给前端的字符串，需要加粗的位置用span标签包裹
-    char *str1,*str2;
+    char *str1=NULL,*str2=NULL,*str=NULL;
 
-    //光标的坐标
+    //光标的坐标 x对应行号，y对应列号
     int x=0,y=0;
 
     //文件的基本操作 *****by Dalio
@@ -61,7 +76,8 @@ private:
 
     //前端文本编辑的显示区域
     QLabel *pLabel;
-
+    //滚动栏
+    QScrollArea *s;
     //光标闪烁的计数器
     qint8 cursorTimer=0;
 
