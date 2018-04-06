@@ -87,9 +87,11 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(400);
 /** init the main datastructure **/
 
+
+
 }
 
-
+//获取键盘捕获函数
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 
@@ -113,27 +115,25 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     QString key=event->text();
     std::string str = key.toStdString();
     const char *ch = str.c_str();
-    update(x,y,*ch);
+    edit(x,y,*ch);
 
     qDebug() <<ch <<int(*ch);
 
 }
-void MainWindow::update(int row, int col, char ch)
+void MainWindow::refresh(int row, int col)
+{
+
+}
+void MainWindow::edit(int row, int col, char ch)
 {
     //1、处理数据结构
 
     //2、将数据结构中的内容整合成一个满足要求的字符串:
     //坐标位置处的字符用两种不同的标签包裹
-
-    //3、调用mainWindow的接口，在屏幕上打印新的字符串
-    //refresh(str1,str2);
+    //<span style='background-color:black;color:white;margin:0;'></span>
+    //<span style='background-color:white;color:black;margin:0;'></span>
+    //最后更新str1和str2，blink()函数会自动显示
 }
-
-void MainWindow::refresh(char *str1, char *str2)
-{
-    //刷新
-}
-
 
 void MainWindow::blink()
 {
@@ -156,7 +156,6 @@ void MainWindow::open()
 {
     QMessageBox::information(this, tr("Information"), tr("Open"));
 }
-
 void MainWindow::create()
 {
     QMessageBox::information(this,tr("info"),tr("New"));
