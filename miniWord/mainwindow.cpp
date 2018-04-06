@@ -1,8 +1,6 @@
 #include <QAction>
 #include <QMenuBar>
 #include <QMessageBox>
-//#include <QStatusBar>
-//#include <QLabel>
 #include <QLayout>
 #include <QScrollArea>
 #include <QDebug>
@@ -33,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     quitAction = new QAction(tr("Quit"),this);
     quitAction->setShortcuts(QKeySequence::Quit);
     connect(quitAction,&QAction::triggered,this,&MainWindow::quit);
+
 //Edit item in menu
     findAction = new QAction(tr("Find"),this);
     findAction->setShortcuts(QKeySequence::Find);
@@ -58,8 +57,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *cenWid = new QWidget;
     this->setCentralWidget(cenWid);
     cenWid->setStyleSheet("background-color: white;color: black;");
+    //this->setFocusPolicy(Qt::NoFocus);
     cenWid->setFocusPolicy(Qt::StrongFocus);
-
+    cenWid->grabKeyboard();
     QVBoxLayout *pVlayout = new QVBoxLayout;
 
     QScrollArea *s = new QScrollArea;
@@ -89,13 +89,12 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+
     switch(event->key())
     {
         case Qt::Key_Left:
             x--;
-            str1="aaaahell<span style='background-color:black;color:white;margin:0;'>o</span>waaa1111111111111111111111111aa";
-            str2="aaaahell<span style='background-color:white;color:black;margin:0;'>o</span>waaa1111111111111111111111111aa";
-            this->blink();
+            qDebug() <<x;
             break;
         case Qt::Key_Right:
             x++;
@@ -107,19 +106,35 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             y--;
             break;
     }
+
     QString key=event->text();
     std::string str = key.toStdString();
+    const char *ch = str.c_str();
+    update(x,y,*ch);
 
-    //const char *ch = str.c_str();
-    //QWidget::keyPressEvent(event);
-    //qDebug() <<ch <<int(*ch);
-    qDebug()<<x <<" " <<y;
+    qDebug() <<ch <<int(*ch);
 
 }
+void MainWindow::update(int row, int col, char ch)
+{
+    //1、处理数据结构
+
+    //2、将数据结构中的内容整合成一个满足要求的字符串:
+    //坐标位置处的字符用两种不同的标签包裹
+    char *str1="123<span style='background-color:black;color:white;margin:0;'>4</span>567";
+    char *str2="123<span style='background-color:white;color:black;margin:0;'>4</span>567";
+
+    //3、调用mainWindow的接口，在屏幕上打印新的字符串
+    refresh(str1,str2);
+}
+void MainWindow::refresh(char *str1, char *str2)
+{
+    //刷新
+}
+
 
 void MainWindow::blink()
 {
-     //qDebug()<<"hello";
      cursorTimer ++;
      if(cursorTimer%2==0)
      {
@@ -128,11 +143,7 @@ void MainWindow::blink()
          pLabel->setText(str1);
      }
      else
-     {
-         //str="aaaahello<span style='background-color:white;color:black;margin:0;'>w</span>aaa1111111111111111111111111aa";
          pLabel->setText(str2);
-     }
-
 }
 
 void MainWindow::open()

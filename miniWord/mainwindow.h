@@ -4,6 +4,12 @@
 #include <QMainWindow>
 #include <QLabel>
 
+typedef struct row{
+    int num;//行号
+    char *col;//列数组的首地址
+    row *next;
+}row,*list;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -12,8 +18,17 @@ public:
     ~MainWindow();
 
 protected:
+    //数据结构改变后刷新窗口编辑区
+    void update(int row,int col,char ch);
+    void refresh(char *str1,char *str2);
+    //键盘事件的捕获
     void keyPressEvent(QKeyEvent *event);
+    //数据结构的基本操作函数
 private:
+    //核心的数据结构
+    list header;
+
+
     //前端文本编辑的显示区域
     QLabel *pLabel;
 
