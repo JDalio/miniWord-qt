@@ -12,9 +12,13 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+
+/** init the main window  **/
+
     this->resize(QSize(550,600));
-    //this->centralWidget()->resize(QSize(550,600));
     setWindowTitle(tr("MiniWord"));
+
+
 //File item in menu
     newAction = new QAction(tr("New"),this);
     newAction->setShortcuts(QKeySequence::New);
@@ -57,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *cenWid = new QWidget;
     this->setCentralWidget(cenWid);
     cenWid->setStyleSheet("background-color: white;color: black;");
-    //this->setFocusPolicy(Qt::NoFocus);
     cenWid->setFocusPolicy(Qt::StrongFocus);
     cenWid->grabKeyboard();
     QVBoxLayout *pVlayout = new QVBoxLayout;
@@ -68,25 +71,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     pLabel=new QLabel;
     pLabel->setStyleSheet("qproperty-alignment: 'AlignTop | AlignLeft'; font-size:20px;");
-    str1="aaaahello<span style='background-color:black;color:white;margin:0;'>w</span>aaa1111111111111111111111111aa";
-    str2="aaaahello<span style='background-color:white;color:black;margin:0;'>w</span>aaa1111111111111111111111111aa";
-    pLabel->setText(str1);
+    str1="";
+    str2="";
+    QString s1=QString(QLatin1String(str1));
+    pLabel->setText(s1);
 
 
     s->setWidget(pLabel);
-
     pVlayout->addWidget(s);
     pVlayout->setMargin(0);
-
     cenWid->setLayout(pVlayout);
-
+//The blink timer
     QTimer *timer=new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(blink()));
     timer->start(400);
-
-
+/** init the main datastructure **/
 
 }
+
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 
@@ -121,12 +124,11 @@ void MainWindow::update(int row, int col, char ch)
 
     //2、将数据结构中的内容整合成一个满足要求的字符串:
     //坐标位置处的字符用两种不同的标签包裹
-    char *str1="123<span style='background-color:black;color:white;margin:0;'>4</span>567";
-    char *str2="123<span style='background-color:white;color:black;margin:0;'>4</span>567";
 
     //3、调用mainWindow的接口，在屏幕上打印新的字符串
-    refresh(str1,str2);
+    //refresh(str1,str2);
 }
+
 void MainWindow::refresh(char *str1, char *str2)
 {
     //刷新
@@ -140,10 +142,14 @@ void MainWindow::blink()
      {
          if(cursorTimer==100)
              cursorTimer=0;
-         pLabel->setText(str1);
+         QString s1=QString(QLatin1String(str1));
+         pLabel->setText(s1);
      }
      else
-         pLabel->setText(str2);
+     {
+         QString s2=QString(QLatin1String(str2));
+         pLabel->setText(s2);
+     }
 }
 
 void MainWindow::open()
