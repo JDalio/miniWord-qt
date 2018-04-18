@@ -55,11 +55,11 @@ private:
     //hsen cursen;
 
     //整个数据结构的有效字符的数目
-    //int index=0;
+    int total=0;
     //整个数据结构在内存中的大小
     //int size=0;
     //后端将数据结构中的数据处理成一个完整的html传给前端的字符串，需要加粗的位置用span标签包裹
-    char *str1 = NULL, *str2 = NULL, *str = NULL;
+    char *str1 = NULL, *str2 = NULL;
 
     //光标的坐标 x对应行号，y对应列号
     int x = 0, y = 0;
