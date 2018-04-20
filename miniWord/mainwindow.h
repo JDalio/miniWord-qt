@@ -4,6 +4,15 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QScrollArea>
+#include <QAction>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QLayout>
+#include <QDebug>
+#include <QTimer>
+#include <QKeyEvent>
+
+#include <string.h>
 
 //sen:sentence, 每100个单词是一个句子
 typedef struct sen
@@ -43,7 +52,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     /** 数据结构的基本操作函数*****by 晨昊 and 冠华 and Dalio **/
     //根据行号，列号(从零开始编号)来修改内存中的数据结构，具体要求在mainWindow.cpp中
-    void edit(int row, int col, char ch);
+    void edit(char ch);
 
     /** 数据结构的基本操作函数完 **/
 private:
@@ -63,6 +72,9 @@ private:
 
     //光标的坐标 x对应行号，y对应列号
     int x = 0, y = 0;
+
+    //右边界和下边界
+    int rightBdry=0,LowerBdry=0;
 
     //打印数据结构
     void print(int x, int y, int x1 = -1, int y1 = -1);
@@ -97,9 +109,7 @@ private:
 
 private
     slots:
-    void
-
-    blink();
+    void blink();
 };
 
 #endif // MAINWINDOW_H

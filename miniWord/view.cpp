@@ -1,13 +1,3 @@
-#include <QAction>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QLayout>
-#include <QDebug>
-#include <QTimer>
-#include <QKeyEvent>
-
-#include <string.h>
-
 #include "mainwindow.h"
 //主窗口的构造函数
 MainWindow::MainWindow(QWidget *parent) :
@@ -73,15 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     pLabel=new QLabel;
     pLabel->setStyleSheet("qproperty-alignment: 'AlignTop | AlignLeft'; font-size:20px;");
 
-    /*str1=new char[2];
-    str2=new char[2];
-    str1[0]=' ';
-    str1[1]='\0';
-    str2[0]=' ';
-    str2[1]='\0';*/
     QString s1=QString(QLatin1String(str1));
     pLabel->setText(s1);
-
 
     s->setWidget(pLabel);
     pVlayout->addWidget(s);
@@ -100,94 +83,15 @@ MainWindow::MainWindow(QWidget *parent) :
     header->next=NULL;
 
     header->h->num=0;
-    header->h->a=new char[100];
+    header->h->a=new char[101];
     header->h->a[0]='\0';
     header->size=100;
     header->h->next=NULL;
 
-}
-//打印数据结构
-void MainWindow::print(int x, int y, int x1=-1, int y1=-1)
-{
+    str1=new char[100];str2=new char[100];
+    strcpy(str1,"<pre><span style='font-size:20px;font-weight:900;background-color:white;color:black;margin:0;'>|</sapn></pre>");
+    strcpy(str2,"<pre><span style='font-size:20px;font-weight:900;background-color:white;color:white;margin:0;'>|</sapn></pre>");
 
-    if(x1=-1&&y1=-1)
-    {
-        //delete str1;delete str2;
-        s1=new char[total+50];str1[0]='\0';
-        s2=new char[total+50];str2[0]='\0';
-
-        list currow=header;
-        //打印位置那行之前的复制
-        while(currow<y)
-        {
-            for(hsen cursen=currow->a;cursen->num<=x/100;cursen=cursen->next)
-            {
-                strcat(s1,cursen->a);
-                s1[(cursen->num+1)*100]='\0';
-            }
-            currow=currow->next;
-        }
-        //打印位置行的复制
-
-    }
-
-
-}
-//字符输入编辑数据结构然后更新屏幕字符串
-void MainWindow::edit(int x, int y, char ch)
-{
-//qDebug() <<"123" <<ch <<"456";
-
-/** (1)定位光标在数据结构中的位置 **/
-    //row pointer postion
-    list currow=header;
-    while(currow->num!=x)
-        currow=currow->next;
-
-    //col pointer postion
-    hsen cursen=currow->h;
-    //char position
-    int index;
-    if(y!=0&&y%100==0)
-    {
-        while(cursen->next)
-            cursen=cursen->next;
-        cursen->a=new char[100];
-        currow->size+=100;
-        index=0;
-    }
-    else
-    {
-        int sennum=y/100;
-        index=y%100;
-        while(cursen->num!=sennum)
-            cursen=cursen->next;
-    }
-/** end of 1 **/
-
-/** 在相应的光标位置处操作 **/
-    switch(ch)
-    {
-        case '\b':
-            qDebug() <<"backspace";
-        break;
-
-        case '\r':
-            qDebug() <<"enter";
-        break;
-
-        default:
-            total++;
-            qDebug()<<ch;
-            if(index!=99)
-                for(int i=strlen(cursen);i>index;i--)
-                    cursen[i]=cursen[i-1];
-
-            cursen[index]=ch;
-            cursen[index+1]='\0';
-    }
-
-    x++;y++;
 }
 //获取键盘捕获函数
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -195,24 +99,35 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     switch(event->key())
     {
         case Qt::Key_Left:
-            x--;
-            qDebug() <<x;
+            rightBdry= x > rightBdry ? x : rightBdry;
+            if(x>=0)
+            {
+                x--;
+                print(x,y);
+            }
             break;
         case Qt::Key_Right:
-            x++;
+            if(x<rightBdry)
+            {
+                x++;
+                print(x,y);
+            }
+
             break;
         case Qt::Key_Up:
-            y++;
-            break;
-        case Qt::Key_Down:
             y--;
             break;
+        case Qt::Key_Down:
+            y++;
+            break;
+        default:
+            QString key=event->text();
+            std::string str = key.toStdString();
+            const char *ch = str.c_str();
+            edit(*ch);
     }
 
-    QString key=event->text();
-    std::string str = key.toStdString();
-    const char *ch = str.c_str();
-    edit(x,y,*ch);
+
 }
 
 void MainWindow::blink()
@@ -226,6 +141,7 @@ void MainWindow::blink()
          delete s->widget();
          QLabel *label=new QLabel();
          label->setText(s1);
+         //label->re
          s->setWidget(label);
      }
      else
@@ -236,34 +152,4 @@ void MainWindow::blink()
          label->setText(s2);
          s->setWidget(label);
      }
-}
-
-void MainWindow::open()
-{
-    QMessageBox::information(this, tr("Information"), tr("Open"));
-}
-void MainWindow::create()
-{
-    QMessageBox::information(this,tr("info"),tr("New"));
-}
-void MainWindow::save()
-{
-
-}
-void MainWindow::quit()
-{
-
-}
-void MainWindow::find()
-{
-
-}
-void MainWindow::replace()
-{
-
-}
-
-MainWindow::~MainWindow()
-{
-
 }
