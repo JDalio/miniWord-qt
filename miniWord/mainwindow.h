@@ -29,7 +29,7 @@ typedef struct row
 {
     int num;//行号
     hsen h;//每一行数组的首地址
-    int size;
+    int size;//每行的实际字符数，是光标移动的右界
     row *next;
 } row, *list;
 

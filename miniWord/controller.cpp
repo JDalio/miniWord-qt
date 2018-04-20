@@ -76,7 +76,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
         char *tmp2=str2;
         str1=s1;
         str2=s2;
-        qDebug()<<str1 <<endl <<str2;
+        //qDebug()<<str1 <<endl <<str2;
         if(str1&&str2)
         {
             delete tmp1;
@@ -98,28 +98,7 @@ void MainWindow::edit(char ch)
 
     //col pointer postion
     hsen cursen=currow->h;
-    //char position
-    int index;
-    if(x!=0&&x%100==0)
-    {
-        while(cursen->next)
-            cursen=cursen->next;
-        //cursen->a[100]='\0';
-        cursen->next=new sen;
-        cursen->next->num=cursen->num+1;
-        cursen=cursen->next;
-        cursen->a=new char[101];
-        cursen->next=NULL;
-        currow->size+=100;
-        index=0;
-    }
-    else
-    {
-        int sennum=x/100;
-        index=x%100;
-        while(cursen->num!=sennum)
-            cursen=cursen->next;
-    }
+
 /** end of 1 **/
 
 /** 在相应的光标位置处操作 **/
@@ -135,13 +114,73 @@ void MainWindow::edit(char ch)
 
         default:
             total++;
-            qDebug()<<"Input:" <<ch;
-            //if(index!=99)
-                for(int i=strlen(cursen->a);i>index;i--)
-                    cursen[i]=cursen[i-1];
+            currow->size++;
+            //char position
+            int index=x%100;
+            if(currow->size!=0&&currow->size%100==0)
+            {
+                while(cursen->next)
+                    cursen=cursen->next;
+                cursen->a[100]='\0';
+                cursen->next=new sen;
+                cursen->next->num=cursen->num+1;
+                cursen=cursen->next;
+                cursen->a=new char[101];
+                cursen->next=NULL;
+                //currow->size+=100;
+                //index=0;
+            }
+            else
+            {
+                int sennum=x/100;
 
+                while(cursen->num!=sennum)
+                    cursen=cursen->next;
+            }
+            //rightBdry=(rightBdry+1)%100;
+            qDebug()<<"Input:" <<ch;
+            if(strlen(cursen->a)<100)
+                for(int i=strlen(cursen->a);i>=index;i--)
+                {
+                    //qDebug()<<i <<" " <<cursen->a[i] <<"->" <<cursen->a[i] <<endl;
+                    cursen->a[i+1]=cursen->a[i];
+                }
+            else//对整个行块链进行移动
+            {
+                //tmp is tail and cursen is "head"
+                hsen tmp=cursen;
+                while(tmp->next)
+                    tmp=tmp->next;
+                //if(currow->size%100)
+                char last_letters[tmp->num-cursen->num+1];
+                tmp=cursen;
+                for(int i=0;tmp->next;i++,tmp=tmp->next)
+                {
+                    last_letters[i]=tmp->a[99];
+                    if(tmp==cursen)
+                        for(int i=strlen(cursen->a)-1;i>index;i--)
+                        {
+                            qDebug()<<i <<" " <<cursen->a[i-1] <<"->" <<cursen->a[i] <<endl;
+                            cursen->a[i]=cursen->a[i-1];
+                        }
+                    else
+                    {
+                        for(int i=99;i>0;i--)
+                            tmp->a[i]=tmp->a[i-1];
+                    }
+                }
+                tmp=cursen->next;
+                for(int i=0;tmp->next;tmp=tmp->next,i++)
+                    tmp->a[0]=last_letters[i];
+
+            }
             cursen->a[index]=ch;
-            cursen->a[index+1]='\0';
+            //total++;
+            /*int len=strlen(cursen->a);
+            if(len<100)
+                cursen->a[len+1]='\0';
+            else
+                cursen->a[100]='\0';*/
             print(x,y);
             x++;
     }

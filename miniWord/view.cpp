@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     header->h->num=0;
     header->h->a=new char[101];
     header->h->a[0]='\0';
-    header->size=100;
+    header->size=0;
     header->h->next=NULL;
 
     str1=new char[100];str2=new char[100];
@@ -96,24 +96,30 @@ MainWindow::MainWindow(QWidget *parent) :
 //获取键盘捕获函数
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    list tmp=header;
     switch(event->key())
     {
         case Qt::Key_Left:
-            rightBdry= x > rightBdry ? x : rightBdry;
-            if(x>=0)
+            //rightBdry= x > rightBdry ? x : rightBdry;
+            if(x>0)
             {
                 x--;
-                print(x,y);
+                print(x-1,y);
             }
             break;
         case Qt::Key_Right:
-            if(x<rightBdry)
+
+            while(tmp->num!=y)
+                tmp=tmp->next;
+
+            if(x<tmp->size)
             {
                 x++;
-                print(x,y);
+                print(x-1,y);
             }
 
             break;
+
         case Qt::Key_Up:
             y--;
             break;
@@ -126,8 +132,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             const char *ch = str.c_str();
             edit(*ch);
     }
-
-
 }
 
 void MainWindow::blink()
