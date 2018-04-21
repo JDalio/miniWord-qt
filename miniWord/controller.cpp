@@ -2,12 +2,12 @@
 //打印数据结构
 void MainWindow::print(int x, int y, int x1, int y1)
 {
-    qDebug() <<"坐标" <<x  <<" " <<y;
+
     if(x1==-1&&y1==-1)
     {
         //delete str1;delete str2;
-        char *s1=new char[total+200];strcpy(s1,"<pre style='font-weight:500;font-size:16px;'>");
-        char *s2=new char[total+200];strcpy(s2,"<pre style='font-weight:500;font-size:16px;'>");
+        char *s1=new char[total+300];strcpy(s1,"<pre style='font-weight:500;font-size:16px;'>");
+        char *s2=new char[total+300];strcpy(s2,"<pre style='font-weight:500;font-size:16px;'>");
 
         list currow=header;
         //打印位置那行之前的复制，每行末无换行符，遍历过程中append
@@ -20,6 +20,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             currow=currow->next;
 
         }
+        //qDebug()<<"1";
         //打印位置行的复制,位置之前的复制
         hsen cursen=currow->h;
         int sennum=x/100;
@@ -31,6 +32,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             //strcat(s1,"\0");
             cursen=cursen->next;
         }
+        //qDebug()<<"2";
         //剩余小于100段的附加
         strncat(s1,cursen->a,index+1);
         //copy the former part && append the cursor
@@ -52,7 +54,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             strcat(s2,cursen->a);
             cursen=cursen->next;
         }
-
+        //qDebug()<<"3";
         if(currow->next)
         {
             strcat(s1,"\n");
@@ -68,7 +70,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             strcat(s1,"\n");
             currow=currow->next;
         }
-
+        //qDebug()<<"4";
         //格式化str1和str2，会自动在blink()中显示
         strcat(s1,"</span></pre>");
         strcat(s2,"</span></pre>");
@@ -76,12 +78,14 @@ void MainWindow::print(int x, int y, int x1, int y1)
         char *tmp2=str2;
         str1=s1;
         str2=s2;
+
         //qDebug()<<str1 <<endl <<str2;
         if(str1&&str2)
         {
             delete tmp1;
             delete tmp2;
         }
+        //qDebug()<<"5";
 
     }
 
@@ -98,6 +102,11 @@ void MainWindow::edit(char ch)
 
     //col pointer postion
     hsen cursen=currow->h;
+    //使cursen始终保持拆入块的位置
+    while(cursen->next && cursen->num!=x/100)
+        cursen=cursen->next;
+
+    int index=x%100;
 
 /** end of 1 **/
 
@@ -113,76 +122,79 @@ void MainWindow::edit(char ch)
         break;
 
         default:
-            total++;
-            currow->size++;
-            //char position
-            int index=x%100;
-            if(currow->size!=0&&currow->size%100==0)
+            //qDebug()<<"Input:" <<ch;
+            //最后一块是判断条件，若最后一块满，则一定要先扩充块链
+            //指向当前行最后一块
+            hsen tmp=cursen;
+            while(tmp->next)
+                tmp=tmp->next;
+            //判断最后一块的长度。若等于100，要加一块,然后开始挪，
+            int len=strlen(tmp->a);
+            //qDebug() <<"len: " <<len;
+            //qDebug() <<"坐标" <<x  <<" " <<y;
+            if(len==100)
             {
-                while(cursen->next)
-                    cursen=cursen->next;
-                cursen->a[100]='\0';
-                cursen->next=new sen;
-                cursen->next->num=cursen->num+1;
-                cursen=cursen->next;
-                cursen->a=new char[101];
-                cursen->next=NULL;
-                //currow->size+=100;
-                //index=0;
+                qDebug()<<"length 100";
+                tmp->next=new sen;
+                tmp->next->num=tmp->num+1;
+                tmp=tmp->next;
+                tmp->a=new char[101];
+                for(int i=0;i<101;i++)
+                    tmp->a[i]='\0';
+                tmp->next=NULL;
             }
+
+            //如果是单纯的当前行末尾插入
+            if(x==currow->size)
+                tmp->a[x%100]=ch;
             else
             {
-                int sennum=x/100;
 
-                while(cursen->num!=sennum)
-                    cursen=cursen->next;
-            }
-            //rightBdry=(rightBdry+1)%100;
-            qDebug()<<"Input:" <<ch;
-            if(strlen(cursen->a)<100)
-                for(int i=strlen(cursen->a);i>=index;i--)
-                {
-                    //qDebug()<<i <<" " <<cursen->a[i] <<"->" <<cursen->a[i] <<endl;
-                    cursen->a[i+1]=cursen->a[i];
-                }
-            else//对整个行块链进行移动
-            {
-                //tmp is tail and cursen is "head"
-                hsen tmp=cursen;
-                while(tmp->next)
-                    tmp=tmp->next;
-                //if(currow->size%100)
                 char last_letters[tmp->num-cursen->num+1];
+
                 tmp=cursen;
-                for(int i=0;tmp->next;i++,tmp=tmp->next)
+                for(int i=0;tmp;i++,tmp=tmp->next)
                 {
-                    last_letters[i]=tmp->a[99];
-                    if(tmp==cursen)
-                        for(int i=strlen(cursen->a)-1;i>index;i--)
+                    //当块为满块时
+                    if(strlen(tmp->a)==100)
+                    {
+                        last_letters[i]=tmp->a[99];
+                        if(tmp==cursen)
                         {
-                            qDebug()<<i <<" " <<cursen->a[i-1] <<"->" <<cursen->a[i] <<endl;
-                            cursen->a[i]=cursen->a[i-1];
+                            for(int i=strlen(cursen->a)-1;i>index;i--)
+                            {
+                                qDebug()<<"Move: " <<i-1 <<":" <<cursen->a[i-1] <<"->" <<i <<":"<<cursen->a[i] <<endl;
+                                tmp->a[i]=tmp->a[i-1];
+                            }
                         }
+                        else
+                        {
+                            for(int i=99;i>0;i--)
+                                tmp->a[i]=tmp->a[i-1];
+                        }
+
+                    }
                     else
                     {
-                        for(int i=99;i>0;i--)
-                            tmp->a[i]=tmp->a[i-1];
+                        if(cursen->num!=tmp->num)//中间插入当前块无位置，最后一个有位置块必定从头移动
+                            for(int i=strlen(tmp->a);i>0;i--)
+                                tmp->a[i]=tmp->a[i-1];
+                        else//当中间插入，指针自动移动到最后一个块时，如果此块有位置
+                            for(int i=strlen(tmp->a);i>index;i--)
+                                tmp->a[i]=tmp->a[i-1];
                     }
-                }
-                tmp=cursen->next;
-                for(int i=0;tmp->next;tmp=tmp->next,i++)
-                    tmp->a[0]=last_letters[i];
 
+                }
+
+                tmp=cursen->next;
+                for(int i=0;tmp;tmp=tmp->next,i++)
+                    tmp->a[0]=last_letters[i];
+                cursen->a[index]=ch;
             }
-            cursen->a[index]=ch;
-            //total++;
-            /*int len=strlen(cursen->a);
-            if(len<100)
-                cursen->a[len+1]='\0';
-            else
-                cursen->a[100]='\0';*/
             print(x,y);
             x++;
+            total++;
+            currow->size++;
     }
 
 }

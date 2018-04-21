@@ -84,7 +84,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     header->h->num=0;
     header->h->a=new char[101];
-    header->h->a[0]='\0';
+    for(int i=0;i<101;i++)
+        header->h->a[i]='\0';
     header->size=0;
     header->h->next=NULL;
 
@@ -147,6 +148,7 @@ void MainWindow::blink()
          label->setText(s1);
          //label->re
          s->setWidget(label);
+         //qDebug()<<"blink1";
      }
      else
      {
@@ -155,5 +157,6 @@ void MainWindow::blink()
          QLabel *label=new QLabel();
          label->setText(s2);
          s->setWidget(label);
+         //qDebug()<<"blink2";
      }
 }
