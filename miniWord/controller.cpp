@@ -114,7 +114,111 @@ void MainWindow::edit(char ch)
     switch(ch)
     {
         case '\b':
-            qDebug() <<"backspace";
+        /** 分两种情况 x=0，删除当前行，x!=0删除行中的字符 **/{
+            qDebug() <<"x: " <<x <<"y: " <<y;
+            if(x==0)
+            {
+                if(y==0)
+                {
+                    cursen=cursen->next;
+                    hsen presen=cursen;
+                    while(presen)
+                    {
+                        cursen=cursen->next;
+                        delete presen;
+                        presen=cursen;
+
+                    }
+                    cursen=header->h;
+                    cursen->next=NULL;
+                    header->size=0;
+                    for(int i=0;i<101;i++)
+                        cursen->a[i]='\0';
+
+                }
+                else
+                {
+                    hsen presen=cursen;
+                    while(presen)
+                    {
+                        cursen=cursen->next;
+                        delete presen;
+                        presen=cursen;
+
+                    }
+                    list pre=header;
+                    while(pre->next!=currow)
+                        pre=pre->next;
+                    pre->next=currow->next;
+                    delete currow;
+                }
+                list tmp=header;
+                int i;
+                for(i=0;tmp;tmp=tmp->next,i++)
+                    tmp->num=i;
+                if(y==i)
+                    y--;
+                print(x,y);
+
+            }
+            else
+            {
+//                if(x==currow->size)
+//                    x--;
+                char board[currow->size+1]={'\0'};
+                cursen=currow->h;
+                //先将块链内容抄出来
+                while(cursen)
+                {
+                    for(int i=100*cursen->num,j=0;i<currow->size;i++,j++)
+                    {
+                        board[i]=cursen->a[j];
+                        cursen->a[j]='\0';
+                    }
+
+                    cursen=cursen->next;
+                }
+                //qDebug() <<board;
+                //修改块链的规模，如最后一块长度为1则
+                cursen=currow->h;
+                while(cursen->next)
+                    cursen=cursen->next;
+                if(strlen(cursen->a)==1&&cursen->num!=0)
+                {
+                    hsen tmp=currow->h;
+                    while(tmp->next!=cursen)
+                        tmp=tmp->next;
+                    delete cursen;
+                    tmp->next=NULL;
+                }
+                if(strlen(cursen->a)==1&&cursen->num==0)
+                {
+                    for(int i=0;i<100;i++)
+                        cursen->a[i]='\0';
+                }
+                //将抄出来的内容抄回去
+                cursen=currow->h;
+                while(cursen)
+                {
+                    for(int i=100*cursen->num,j=0;i<currow->size;i++,j++)
+                    {
+                        if(i!=x-1)
+                            cursen->a[j]=board[i];
+                        else
+                            j--;
+                    }
+                    cursen=cursen->next;
+                }
+                x--;
+                if(currow->size>0)
+                    currow->size--;
+                //qDebug() <<currow->size;
+                print(x-1,y);
+
+
+            }
+            break;
+            }
         break;
 
         case '\r':
@@ -122,6 +226,7 @@ void MainWindow::edit(char ch)
         break;
 
         default:
+        /** 当输入字母和数字的时候 **/{
             //qDebug()<<"Input:" <<ch;
             //最后一块是判断条件，若最后一块满，则一定要先扩充块链
             //指向当前行最后一块
@@ -195,6 +300,7 @@ void MainWindow::edit(char ch)
             x++;
             total++;
             currow->size++;
+            /** 输入字母和数字的情况结束 **/}
     }
 
 }
