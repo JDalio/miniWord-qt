@@ -2,25 +2,25 @@
 //打印数据结构
 void MainWindow::print(int x, int y, int x1, int y1)
 {
+    qDebug() <<"Print:" <<"x: " <<x <<"y: " <<y;
 
     if(x1==-1&&y1==-1)
     {
         //delete str1;delete str2;
-        char *s1=new char[total+300];strcpy(s1,"<pre style='font-weight:500;font-size:16px;'>");
-        char *s2=new char[total+300];strcpy(s2,"<pre style='font-weight:500;font-size:16px;'>");
+        char *s1=new char[total+300];strcpy(s1,"<pre style='font-weight:500;font-size:16px;'>\n");
+        char *s2=new char[total+300];strcpy(s2,"<pre style='font-weight:500;font-size:16px;'>\n");
 
         list currow=header;
         //打印位置那行之前的复制，每行末无换行符，遍历过程中append
         while(currow->num<y)
         {
-            for(hsen cursen=currow->h;cursen->num<=x/100;cursen=cursen->next)
+            for(hsen cursen=currow->h;cursen&&cursen->num<=x/100;cursen=cursen->next)
                 strcat(s1,cursen->a);
-            //s1[(cursen->num+1)*100+1]='\n';
             strcat(s1,"\n");
             currow=currow->next;
 
         }
-        //qDebug()<<"1";
+//        qDebug()<<"1";
         //打印位置行的复制,位置之前的复制
         hsen cursen=currow->h;
         int sennum=x/100;
@@ -32,7 +32,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             //strcat(s1,"\0");
             cursen=cursen->next;
         }
-        //qDebug()<<"2";
+//        qDebug()<<"2";
         //剩余小于100段的附加
         strncat(s1,cursen->a,index+1);
         //copy the former part && append the cursor
@@ -54,7 +54,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
             strcat(s2,cursen->a);
             cursen=cursen->next;
         }
-        //qDebug()<<"3";
+//        qDebug()<<"3";
         if(currow->next)
         {
             strcat(s1,"\n");
@@ -65,9 +65,13 @@ void MainWindow::print(int x, int y, int x1, int y1)
         currow=currow->next;
         while(currow)
         {
-            for(hsen cursen=currow->h;cursen->num<=x/100;cursen=cursen->next)
+            for(hsen cursen=currow->h;cursen&&cursen->num<=x/100;cursen=cursen->next)
+            {
                 strcat(s1,cursen->a);
+                strcat(s2,cursen->a);
+            }
             strcat(s1,"\n");
+            strcat(s2,"\n");
             currow=currow->next;
         }
         //qDebug()<<"4";
@@ -79,7 +83,7 @@ void MainWindow::print(int x, int y, int x1, int y1)
         str1=s1;
         str2=s2;
 
-        //qDebug()<<str1 <<endl <<str2;
+        qDebug()<<str1 <<endl <<str2;
         if(str1&&str2)
         {
             delete tmp1;
@@ -115,7 +119,7 @@ void MainWindow::edit(char ch)
     {
         case '\b':
         /** 分两种情况 x=0，删除当前行，x!=0删除行中的字符 **/{
-            qDebug() <<"x: " <<x <<"y: " <<y;
+            qDebug() <<"backspace: " <<"x: " <<x <<"y: " <<y;
             if(x==0)
             {
                 if(y==0)
@@ -158,7 +162,7 @@ void MainWindow::edit(char ch)
                     tmp->num=i;
                 if(y==i)
                     y--;
-                print(x,y);
+                print(x-1,y);
 
             }
             else
@@ -222,7 +226,45 @@ void MainWindow::edit(char ch)
         break;
 
         case '\r':
-            qDebug() <<"enter";
+            qDebug() <<"enter:" <<"x: " <<x <<"y: " <<y;
+        /** 分三种情况 行末回车，行中回车，行末回车 **/{
+            if(x==currow->size)
+            {
+                list next=currow->next;
+                currow->next=new row;
+                currow->next->num=currow->num+1;
+                currow=currow->next;
+                currow->next=next;
+
+                currow->h=new sen;
+                currow->size=0;
+                cursen=currow->h;
+                cursen->a=new char [101];
+                for(int i=0;i<101;i++)
+                    cursen->a[i]='\0';
+                cursen->num=0;
+                cursen->next=NULL;
+
+                while(next)
+                {
+                    next->num++;
+                    next=next->next;
+                }
+
+                x=0;
+                y++;
+                print(x,y);
+
+            }
+            else if(x==0)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
         break;
 
         default:

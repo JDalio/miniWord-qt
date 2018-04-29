@@ -122,10 +122,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
 
         case Qt::Key_Up:
-            y--;
+            if(y>0)
+                y--;
+            while(tmp->num!=y)
+                tmp=tmp->next;
+            if(x>tmp->size)
+                x=tmp->size;
+            print(x-1,y);
             break;
         case Qt::Key_Down:
             y++;
+            while(tmp&&tmp->num!=y)
+                tmp=tmp->next;
+            if(tmp&&x>tmp->size)
+                x=tmp->size;
+            if(!tmp)
+               y--;
+            print(x-1,y);
             break;
         default:
             QString key=event->text();
