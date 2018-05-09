@@ -61,34 +61,55 @@ void MainWindow::edit(char ch)
         case '\r':
             qDebug() <<"enter:" <<"x: " <<x <<"y: " <<y;
         /** 分三种情况 行首回车，行中回车，行末回车 **/{
-            list next=currow->next;
+            list next=currow->next,pre=currow;
             currow->next=new row;
             currow->next->num=currow->num+1;
             currow=currow->next;
             currow->next=next;
-
-            currow->a=new char[101];
-            currow->a[0]='\0';
-            currow->size=0;
-            currow->total=100;
 
             while(next)
             {
                 next->num++;
                 next=next->next;
             }
-            if(x==currow->size)
+            if(x==pre->size)
             {
+                currow->a=new char[101];
+                currow->a[0]='\0';
+                currow->size=0;
+                currow->total=100;
                 x=0;
                 y++;
 
             }
             else if(x==0)
             {
-
+                currow->a=pre->a;
+                currow->size=pre->size;
+                currow->total=pre->total;
+                pre->a=new char[101];
+                pre->a[0]='\0';
+                pre->size=0;
+                pre->total=100;
+                y++;
             }
             else
             {
+                char *tmp=pre->a;
+                currow->size=pre->total-pre->size;
+                currow->total=(currow->size/100+1)*100;
+                currow->a=new char[currow->total+1];
+                currow->a[0]='\0';
+
+                pre->total=(x/100+1)*100;
+                pre->a=new char[pre->total+1];
+                pre->a[0]='\0';
+                pre->size=x;
+
+                memcpy(pre->a,tmp,x);
+                memcpy(currow->a,tmp+x,strlen(tmp)-x);
+                delete tmp;
+                x=0;y++;
 
             }
             print(x,y);
