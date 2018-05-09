@@ -14,21 +14,12 @@
 
 #include <string.h>
 
-//sen:sentence, 每100个单词是一个句子
-typedef struct sen
-{
-    //堆块的编号
-    int num;
-    //100个字符的首地址
-    char *a;
-    sen *next;
-} sen, *hsen;
-
 //数据结构中每一行的定义
 typedef struct row
 {
     int num;//行号
-    hsen h;//每一行数组的首地址
+    char *a;//每一行数组的首地址
+    int total;
     int size;//每行的实际字符数，是光标移动的右界
     row *next;
 } row, *list;

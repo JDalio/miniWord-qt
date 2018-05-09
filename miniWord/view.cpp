@@ -79,19 +79,77 @@ MainWindow::MainWindow(QWidget *parent) :
 
     header=new row;
     header->num=0;
-    header->h=new sen;
-    header->next=NULL;
-
-    header->h->num=0;
-    header->h->a=new char[101];
-    for(int i=0;i<101;i++)
-        header->h->a[i]='\0';
+    header->a=new char[101];
+    header->a[0]='\0';
     header->size=0;
-    header->h->next=NULL;
+    header->total=100;
+    header->next=NULL;
 
     str1=new char[100];str2=new char[100];
     strcpy(str1,"<pre><span style='font-size:20px;font-weight:900;background-color:white;color:black;margin:0;'>|</sapn></pre>");
     strcpy(str2,"<pre><span style='font-size:20px;font-weight:900;background-color:white;color:white;margin:0;'>|</sapn></pre>");
+
+}
+//打印数据结构,修改str1,str2
+void MainWindow::print(int x, int y, int x1, int y1)
+{
+    qDebug() <<"Print:" <<"x: " <<x <<"y: " <<y;
+
+    if(x1==-1&&y1==-1)
+    {
+        //delete str1;delete str2;
+        char *s1=new char[total+300];strcpy(s1,"<pre style='font-weight:500;font-size:16px;'>\n");
+        char *s2=new char[total+300];strcpy(s2,"<pre style='font-weight:500;font-size:16px;'>\n");
+
+        list currow=header;
+        //打印位置那行之前的复制，每行末无换行符，遍历过程中append
+        while(currow->num<y)
+        {
+            strcat(s1,currow->a);
+            strcat(s1,"\n");
+            currow=currow->next;
+        }
+        //打印位置行的复制,位置之前的复制
+        strncat(s1,currow->a,x);
+
+        strcpy(s2,s1);
+        //加入光标
+        strcat(s1,"<span style='font-size:20px;font-weight:900;background-color:white;color:black;margin:0;'>|</sapn><span style='font-weight:500;font-size:16px;'>");
+        strcat(s2,"<sapn style='font-size:20px;font-weight:900;background-color:white;color:white;margin:0;'>|</span><span style='color:black;font-weight:500;font-size:16px;'>");
+
+        //append the latter part which may less than 100
+        char *latter=&currow->a[x];
+        strcat(s1,latter);
+        strcat(s2,latter);
+        //光标行之后的复制
+        if(currow->next)
+        {
+            strcat(s1,"\n");
+            strcat(s2,"\n");
+        }
+        currow=currow->next;
+        while(currow)
+        {
+            strcat(s1,currow->a);
+            strcat(s1,"\n");
+            strcat(s2,currow->a);
+            strcat(s2,"\n");
+            currow=currow->next;
+        }
+        //格式化str1和str2，会自动在blink()中显示
+        strcat(s1,"</span></pre>");
+        strcat(s2,"</span></pre>");
+        char *tmp1=str1;
+        char *tmp2=str2;
+        str1=s1;
+        str2=s2;
+//        qDebug()<<str1 <<endl <<str2;
+        if(str1&&str2)
+        {
+            delete tmp1;
+            delete tmp2;
+        }
+    }
 
 }
 //获取键盘捕获函数
@@ -101,26 +159,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     switch(event->key())
     {
         case Qt::Key_Left:
-            //rightBdry= x > rightBdry ? x : rightBdry;
             if(x>0)
             {
                 x--;
-                print(x-1,y);
+                print(x,y);
             }
             break;
         case Qt::Key_Right:
-
             while(tmp->num!=y)
                 tmp=tmp->next;
-
             if(x<tmp->size)
             {
                 x++;
-                print(x-1,y);
+                print(x,y);
             }
-
             break;
-
         case Qt::Key_Up:
             if(y>0)
                 y--;
@@ -128,7 +181,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 tmp=tmp->next;
             if(x>tmp->size)
                 x=tmp->size;
-            print(x-1,y);
+            print(x,y);
             break;
         case Qt::Key_Down:
             y++;
@@ -138,7 +191,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 x=tmp->size;
             if(!tmp)
                y--;
-            print(x-1,y);
+            print(x,y);
             break;
         default:
             QString key=event->text();
