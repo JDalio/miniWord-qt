@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QStatusBar>
 
 #include <string.h>
 
@@ -44,12 +45,12 @@ protected:
     /** 数据结构的基本操作函数*****by 晨昊 and 冠华 and Dalio **/
     //根据行号，列号(从零开始编号)来修改内存中的数据结构，具体要求在mainWindow.cpp中
     void edit(char ch);
-
+    //命令模式
+    void exe(char ch);
     /** 数据结构的基本操作函数完 **/
 private:
 
     /** 编程主要用的后端的，及后端与前端公用的数据 !!!只可增加不可删除**/
-
     //核心的数据结构，每一行的堆就是malloc/new出来的数组
     list header;
     //hsen cursen;
@@ -61,15 +62,16 @@ private:
     //后端将数据结构中的数据处理成一个完整的html传给前端的字符串，需要加粗的位置用span标签包裹
     char *str1 = NULL, *str2 = NULL;
 
-    //光标的坐标 x对应行号，y对应列号
-    int x = 0, y = 0;
+    //光标的坐标 x对应行号，y对应列号,ox,oy剪切粘贴用
+    int x = 0, y = 0,ox=-1,oy=-1;
 
     //右边界和下边界
     int rightBdry=0,LowerBdry=0;
 
     //打印数据结构
     void print(int x, int y, int x1 = -1, int y1 = -1);
-
+    //status bar 的提示信息，用于命令模式
+    void hint(const char *hint);
     //文件的基本操作 *****by Dalio
     void create();
 
@@ -84,7 +86,8 @@ private:
 
     void replace();
     /** 后端的，及后端与前端公用的数据 完**/
-
+    //剪贴板
+    char *clipboard=NULL;
     //前端文本编辑的显示区域
     QLabel *pLabel;
     //滚动栏
@@ -96,6 +99,9 @@ private:
     QAction *newAction, *openAction;
     QAction *saveAction, *quitAction;
     QAction *findAction, *replaceAction;
+    //status bar
+    QStatusBar *statusbar;
+    bool order_mod=false;
 
 private
     slots:
