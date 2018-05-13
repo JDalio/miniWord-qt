@@ -13,17 +13,7 @@
 #include <QKeyEvent>
 #include <QStatusBar>
 
-#include <string.h>
-
-//数据结构中每一行的定义
-typedef struct row
-{
-    int num;//行号
-    char *a;//每一行数组的首地址
-    int total;
-    int size;//每行的实际字符数，是光标移动的右界
-    row *next;
-} row, *list;
+#include "clipboard.h"
 
 //窗口的定义，其中核心数据结构放在了窗口的私有成员中
 class MainWindow : public QMainWindow
@@ -87,7 +77,7 @@ private:
     void replace();
     /** 后端的，及后端与前端公用的数据 完**/
     //剪贴板
-    char *clipboard=NULL;
+    board clipboard;
     //前端文本编辑的显示区域
     QLabel *pLabel;
     //滚动栏

@@ -38,7 +38,7 @@ void MainWindow::edit(char ch)
                 int i;
                 for(i=0;tmp;tmp=tmp->next,i++)
                     tmp->num=i;
-                if(y==i)
+                if (y == i && y != 0)
                     y--;
             }
             else
@@ -138,60 +138,38 @@ void MainWindow::exe(char order)
     switch(order)
     {
         case 'd':
-            if(clipboard)
-            {
-                delete clipboard;
-            }
-            clipboard=new char[total];
-
             list currow=header;
             int minx = (x<ox||ox==-1 ? x : ox) , maxx = (x>ox||ox==-1 ? x : ox);
             int miny = (y<oy||oy==-1 ? y : oy) , maxy = (y>oy||oy==-1 ? y : oy);
+
+            clipboard.refresh();
+
             //打印位置那行之前的复制，每行末无换行符，遍历过程中append
             while(currow->num<miny)
-            {
                 currow=currow->next;
-            }
-
             if(miny==maxy)
             {
-                for(int i=minx;currow->a[maxx+i];i++)
-                {
-
-                }
-                strncat(s1,currow->a,minx);
-                strcat(s1,"<span style='font-size:16px;font-weight:500;background-color:black;color:white;margin:0;'>");
-                strncat(s1,&currow->a[minx],maxx-minx);
-                strcat(s1,"</span><span background-color:white;color:black;");
-                strcat(s1,&currow->a[maxx]);
-    //            qDebug()<<"1";
+                total -= clipboard.clip(currow, minx, maxx);
+                x = minx;
+                ox = x;
+                print(x, y, ox, oy);
             }
             else
             {
-                int startx=( y==miny ? x : ox );
-                int endx=( y==maxy ? x : ox );
-                strncat(s1,currow->a,startx);
-                strcat(s1,"<span style='font-size:16px;font-weight:500;background-color:black;color:white;margin:0;'>");
-                strcat(s1,&currow->a[startx]);
-                if(currow->next)
-                {
-                    strcat(s1,"\n");
-                    currow=currow->next;
-                }
+                int startx = (y == miny ? x : ox), endx = (y == maxy ? x : ox);
+                //剪切第一行的处理
+                total -= clipboard.clip(currow, startx, currow->size - 1);
+                //剪切中间行的处理
                 while(currow->num<maxy)
                 {
-                    strcat(s1,currow->a);
-                    strcat(s1,"\n");
-                    currow=currow->next;
+                    total -= clipboard.clip(currow, 0, currow->size - 1);
                 }
-                strncat(s1,currow->a,endx);
-                strcat(s1,"</span><span background-color:white;color:black;");
-                strcat(s1,&currow->a[endx]);
+                //剪切最末行的处理
+                total -= clipboard.clip(currow, 0, endx);
             }
-
             break;
-        case 'p':
-            break;
+//        case 'p':
+//            break;
     }
 }
 

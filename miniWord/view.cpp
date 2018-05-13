@@ -137,7 +137,7 @@ void MainWindow::print(int x, int y, int ox, int oy)
             strncat(s1,currow->a,minx);
             strcat(s1,"<span style='font-size:16px;font-weight:500;background-color:black;color:white;margin:0;'>");
             strncat(s1,&currow->a[minx],maxx-minx);
-            strcat(s1,"</span><span background-color:white;color:black;");
+            strcat(s1, "</span><span background-color:white;color:black;>");
             strcat(s1,&currow->a[maxx]);
 //            qDebug()<<"1";
         }
@@ -160,7 +160,7 @@ void MainWindow::print(int x, int y, int ox, int oy)
                 currow=currow->next;
             }
             strncat(s1,currow->a,endx);
-            strcat(s1,"</span><span background-color:white;color:black;");
+            strcat(s1, "</span><span background-color:white;color:black;>");
             strcat(s1,&currow->a[endx]);
         }
     }
@@ -169,15 +169,20 @@ void MainWindow::print(int x, int y, int ox, int oy)
     if(currow->next)
     {
         strcat(s1,"\n");
-        strcat(s2,"\n");
+        if (!order_mod)
+            strcat(s2, "\n");
     }
     currow=currow->next;
     while(currow)
     {
         strcat(s1,currow->a);
         strcat(s1,"\n");
-        strcat(s2,currow->a);
-        strcat(s2,"\n");
+        if (!order_mod)
+        {
+            strcat(s2, currow->a);
+            strcat(s2, "\n");
+        }
+
         currow=currow->next;
     }
 //    qDebug()<<"2";
@@ -197,6 +202,7 @@ void MainWindow::print(int x, int y, int ox, int oy)
     }
     if(order_mod)
     {
+        qDebug() << s1;
         QString s1=QString(QLatin1String(str1));
         delete s->widget();
         QLabel *label=new QLabel();
@@ -246,7 +252,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_Escape:
             ox=x;  oy=y;
-            x--;
             order_mod=true;
             hint("");
             print(x,y,ox,oy);
@@ -260,6 +265,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 ox=-1;  oy=-1;
                 hint("INSERT");
                 order_mod=false;
+                print(x, y, ox, oy);
                 break;
             }
             if(order_mod)  

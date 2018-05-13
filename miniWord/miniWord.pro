@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     view.cpp \
-    controller.cpp
+    controller.cpp \
+    clipboard.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    clipboard.h
 
 FORMS    += mainwindow.ui
 
