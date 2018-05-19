@@ -32,6 +32,9 @@ public:
     //清空剪切板
     void refresh();
 
+    //复制操作
+    void copy(list header, int &x, int &y, int &ox, int &oy, bool clip, int &total);
+
 private:
     //往剪切板压入一行
     void push(char *src, int start = -1, int end = -1);

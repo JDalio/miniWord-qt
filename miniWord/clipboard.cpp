@@ -139,3 +139,50 @@ int board::clip(list currow, int minx, int maxx)
     currow->a = tmp;
     return dellen;
 }
+
+void board::copy(list mainHeader, int &x, int &y, int &ox, int &oy, bool clip, int &total)
+{
+    refresh();
+    list currow = mainHeader;
+    int minx = (x < ox || ox == -1 ? x : ox), maxx = (x > ox || ox == -1 ? x : ox);
+    int miny = (y < oy || oy == -1 ? y : oy), maxy = (y > oy || oy == -1 ? y : oy);
+
+    while (currow->num < miny)
+        currow = currow->next;
+    if (miny == maxy)
+    {
+        if (clip)
+            total -= this->clip(currow, minx, maxx);
+        else
+            push(currow->a, minx, maxx);
+        x = minx;
+        ox = x;
+    } else
+    {
+        int startx = (y == miny ? x : ox), endx = (y == maxy ? x : ox);
+        //第一行的处理
+        if (clip)
+            total -= this->clip(currow, startx, currow->size);
+        else
+            push(currow->a, startx, currow->size);
+        currow = currow->next;
+        //剪切中间行的处理
+        while (currow->num < maxy)
+        {
+            if (clip)
+                total -= this->clip(currow, -1, -1);
+            else
+                push(currow->a, -1, -1);
+            currow = currow->next;
+        }
+        //剪切最末行的处理
+        if (clip)
+            total -= this->clip(currow, 0, endx);
+        else
+            push(currow->a, 0, endx);
+        x = startx;
+        ox = x;
+        y = miny;
+        oy = y;
+    }
+}
