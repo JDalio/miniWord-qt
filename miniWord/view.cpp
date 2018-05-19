@@ -78,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(blink()));
     timer->start(400);
  }
+///** init the clipboard **/
+//    clipboard.header=NULL;
 /** init the main datastructure **/
 
     header=new row;
@@ -202,7 +204,7 @@ void MainWindow::print(int x, int y, int ox, int oy)
     }
     if(order_mod)
     {
-        qDebug() << s1;
+//        qDebug() << s1;
         QString s1=QString(QLatin1String(str1));
         delete s->widget();
         QLabel *label=new QLabel();

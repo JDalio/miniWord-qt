@@ -138,11 +138,14 @@ void MainWindow::exe(char order)
     switch(order)
     {
         case 'd':
+        {
             list currow=header;
             int minx = (x<ox||ox==-1 ? x : ox) , maxx = (x>ox||ox==-1 ? x : ox);
             int miny = (y<oy||oy==-1 ? y : oy) , maxy = (y>oy||oy==-1 ? y : oy);
 
             clipboard.refresh();
+
+//            qDebug()<<'(' <<minx <<',' <<miny <<')' <<" (" <<maxx <<',' <<maxy <<')';
 
             //打印位置那行之前的复制，每行末无换行符，遍历过程中append
             while(currow->num<miny)
@@ -152,24 +155,33 @@ void MainWindow::exe(char order)
                 total -= clipboard.clip(currow, minx, maxx);
                 x = minx;
                 ox = x;
-                print(x, y, ox, oy);
             }
             else
             {
                 int startx = (y == miny ? x : ox), endx = (y == maxy ? x : ox);
                 //剪切第一行的处理
-                total -= clipboard.clip(currow, startx, currow->size - 1);
+                total -= clipboard.clip(currow, startx, currow->size);
+                currow = currow->next;
                 //剪切中间行的处理
                 while(currow->num<maxy)
                 {
-                    total -= clipboard.clip(currow, 0, currow->size - 1);
+                    total -= clipboard.clip(currow, -1, -1);
+                    currow = currow->next;
                 }
                 //剪切最末行的处理
                 total -= clipboard.clip(currow, 0, endx);
+                x = startx;
+                ox = x;
+                y = miny;
+                oy = y;
             }
+            print(x, y, ox, oy);
             break;
-//        case 'p':
-//            break;
+        }
+        case 'p':
+            total += clipboard.paste(header, x, y, ox, oy);
+            print(x, y, ox, oy);
+            break;
     }
 }
 

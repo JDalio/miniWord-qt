@@ -2,7 +2,7 @@
 #define CLIPBOARD_H
 
 #include <string.h>
-
+#include <QDebug>
 //数据结构中每一行的定义
 typedef struct row
 {
@@ -26,8 +26,8 @@ public:
     //剪切时，单独行的操作
     int clip(list row, int minx, int maxx);
 
-    //粘贴时，单独行的操作
-    void append(char *a);
+    //全部数据结构的粘贴操作
+    int paste(list header, int &x, int &y, int &ox, int &oy);
 
     //清空剪切板
     void refresh();
@@ -36,7 +36,7 @@ private:
     //往剪切板压入一行
     void push(char *src, int start = -1, int end = -1);
 
-    clipheader header, tail;
+    clipheader header = NULL, tail = NULL;
 };
 
 #endif // CLIPBOARD_H
