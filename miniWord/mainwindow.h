@@ -15,7 +15,7 @@
 
 #include "clipboard.h"
 
-//窗口的定义，其中核心数据结构放在了窗口的私有成员中
+//窗口的定义，其中核心数据结构放在窗口的私有成员中
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
