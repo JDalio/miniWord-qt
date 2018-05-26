@@ -1,4 +1,3 @@
-/// Qt 5
 #include "mainwindow.h"
 #include <QApplication>
 

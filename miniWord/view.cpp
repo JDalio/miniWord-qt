@@ -10,10 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //File item in menu
 
-    newAction = new QAction(tr("New"),this);
-    newAction->setShortcuts(QKeySequence::New);
-    connect(newAction,&QAction::triggered,this,&MainWindow::create);
-
     openAction = new QAction(tr("&Open"), this);
     openAction->setShortcuts(QKeySequence::Open);
     connect(openAction, &QAction::triggered, this, &MainWindow::open);
@@ -36,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(quitAction,&QAction::triggered,this,&MainWindow::replace);
     //qDebug()<<;
     QMenu *file = menuBar()->addMenu(tr("&File"));
-    file->addAction(newAction);
     file->addAction(openAction);
     file->addAction(saveAction);
     file->addAction(quitAction);
@@ -79,8 +74,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(400);
  }
 ///** init the clipboard **/
-//    clipboard.header=NULL;
-//init the main datastructure
 
     header=new row;
     header->num=0;
@@ -257,6 +250,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             order_mod=true;
             hint("");
             print(x,y,ox,oy);
+            break;
+        case Qt::Key_Control:
             break;
         default:
             QString key=event->text();

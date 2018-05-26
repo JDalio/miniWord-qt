@@ -1,5 +1,4 @@
 #include "clipboard.h"
-
 void board::refresh()
 {
     while (header)

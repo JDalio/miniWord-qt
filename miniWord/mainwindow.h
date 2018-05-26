@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include <QString>
 #include <QByteArray>
+#include <QCloseEvent>
 
 #include "clipboard.h"
 
@@ -41,6 +42,8 @@ protected:
     void edit(char ch);
     //命令模式
     void exe(char ch);
+    //点击关闭窗口按钮
+    void closeEvent(QCloseEvent *event);
     /** 数据结构的基本操作函数完 **/
 private:
 
@@ -51,6 +54,8 @@ private:
 
     //整个数据结构的有效字符的数目
     int total=0;
+    //当前窗口内的内容是否完整保存
+    bool isSaved=true;
     //整个数据结构在内存中的大小
     //int size=0;
     //后端将数据结构中的数据处理成一个完整的html传给前端的字符串，需要加粗的位置用span标签包裹
@@ -68,7 +73,7 @@ private:
     void hint(const char *hint);
     //文件的基本操作 *****by Dalio
     //文件名
-    char *filename = NULL;
+    std::string filename = "";
 
     void open();
 

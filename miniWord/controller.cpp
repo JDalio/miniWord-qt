@@ -9,22 +9,33 @@ void MainWindow::edit(char ch)
     list currow=header;
     while(currow->num!=y)
         currow=currow->next;
-
+    isSaved=false;
 /** 在相应的光标位置处操作 **/
     switch(ch)
     {
         case '\b':
         /** 分两种情况 x=0，删除当前行，x!=0删除行中的字符 **/{
-            qDebug() <<"backspace: " <<"x: " <<x <<"y: " <<y;
             if(x==0)
             {
                 if(y==0)
-                {
-                    currow->a=(char*)realloc(currow->a,101*sizeof(char));
-                    currow->a[0]='\0';
-                    header->size=0;
-                    header->total=100;
-                    total=0;
+                {                   
+                    if(header->next)
+                    {
+                        list tmp=header;
+                        header=header->next;
+                        total-=tmp->size;
+                        delete tmp->a;
+                        delete tmp;
+                    }
+                    else
+                    {
+                        currow->a=(char*)realloc(currow->a,101*sizeof(char));
+                        currow->a[0]='\0';
+                        header->size=0;
+                        header->total=100;
+                        total=0;
+                    }
+
                 }
                 else
                 {
@@ -141,12 +152,14 @@ void MainWindow::exe(char order)
     {
         case 'd':
         {
+            isSaved=false;
             clipboard.copy(header, x, y, ox, oy, true, total);
             print(x, y, ox, oy);
             break;
         }
         case 'p':
         {
+            isSaved=false;
             total += clipboard.paste(header, x, y, ox, oy);
             print(x, y, ox, oy);
             break;
@@ -162,18 +175,14 @@ void MainWindow::exe(char order)
 
 void MainWindow::open()
 {
-    //定义文件对话框类
     QFileDialog *fileDialog = new QFileDialog();
-    //定义文件对话框标题
     fileDialog->setWindowTitle(tr("打开文件"));
-    //设置默认文件路径
     fileDialog->setDirectory(".");
-    //设置视图模式
     fileDialog->setViewMode(QFileDialog::Detail);
-    //打印所有选择的文件的路径
+
     QString path = fileDialog->getOpenFileName();
-    QByteArray ba = path.toLatin1(); // must
-    filename = ba.data();
+    filename=std::string((const char *)path.toLocal8Bit());
+
     //将文件内容读入结构体
     std::ifstream fin;
     fin.open(filename, std::ios::in);
@@ -207,25 +216,53 @@ void MainWindow::open()
 
 void MainWindow::save()
 {
-    if (filename)
+    if (filename=="")
     {
-        std::ofstream fout;
-        fout.open(filename, std::ios::out);
-        list currow = header;
-        while (currow)
+        QString path=QDir::currentPath();
+        QString name = QFileDialog::getSaveFileName(this, tr("保存文件"),path,tr("Text Files (*.txt)"));
+        if(!name.isNull())
+            filename=name.toStdString();
+        else
         {
-            fout << currow->a;
-            currow = currow->next;
-            if (currow)
-                fout << "\n";
+            isSaved=false;
+            return;
         }
-        fout.close();
+    }
+    isSaved=true;
+    std::ofstream fout;
+    fout.open(filename);
+    list currow = header;
+    while (currow)
+    {
+        fout << currow->a;
+        currow = currow->next;
+        if (currow)
+            fout << "\n";
+    }
+    fout.close();
+
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if(total !=0 && !isSaved)
+    {
+          switch( QMessageBox::information(this,tr("提示"),tr("是否保存文件?"),tr("确定"), tr("取消"),0,1))
+          {
+              case 0:
+                  save();
+                  break;
+              case 1:
+              default:
+                  event->ignore();
+                  break;
+          }
     }
 
 }
 void MainWindow::quit()
 {
-
+    this->close();
 }
 void MainWindow::find()
 {
@@ -235,8 +272,14 @@ void MainWindow::replace()
 {
 
 }
-
 MainWindow::~MainWindow()
 {
-
+    list tmp=header;
+    while(header)
+    {
+        header=header->next;
+        delete tmp->a;
+        delete tmp;
+        tmp=header;
+    }
 }
