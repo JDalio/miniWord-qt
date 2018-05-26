@@ -1,6 +1,5 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
-
 #include <string.h>
 #include <QDebug>
 //数据结构中每一行的定义

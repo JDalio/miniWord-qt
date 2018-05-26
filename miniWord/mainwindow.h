@@ -12,10 +12,14 @@
 #include <QTimer>
 #include <QKeyEvent>
 #include <QStatusBar>
+#include <QFileDialog>
+#include <QString>
+#include <QByteArray>
 
 #include "clipboard.h"
 
-//窗口的定义，其中核心数据结构放在窗口的私有成员中
+
+//窗口的定义，其中核心数据结构放在了窗口的私有成员中
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -63,7 +67,8 @@ private:
     //status bar 的提示信息，用于命令模式
     void hint(const char *hint);
     //文件的基本操作 *****by Dalio
-    void create();
+    //文件名
+    char *filename = NULL;
 
     void open();
 

@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
  }
 ///** init the clipboard **/
 //    clipboard.header=NULL;
-/** init the main datastructure **/
+//init the main datastructure
 
     header=new row;
     header->num=0;

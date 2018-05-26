@@ -1,4 +1,6 @@
 #include <mainwindow.h>
+#include <fstream>
+#include <string>
 //字符输入编辑数据结构然后更新屏幕字符串,x是行，y是列
 void MainWindow::edit(char ch)
 {
@@ -140,38 +142,6 @@ void MainWindow::exe(char order)
         case 'd':
         {
             clipboard.copy(header, x, y, ox, oy, true, total);
-//            clipboard.refresh();
-//            list currow=header;
-//            int minx = (x<ox||ox==-1 ? x : ox) , maxx = (x>ox||ox==-1 ? x : ox);
-//            int miny = (y<oy||oy==-1 ? y : oy) , maxy = (y>oy||oy==-1 ? y : oy);
-
-//            while(currow->num<miny)
-//                currow=currow->next;
-//            if(miny==maxy)
-//            {
-//                total -= clipboard.clip(currow, minx, maxx);
-//                x = minx;
-//                ox = x;
-//            }
-//            else
-//            {
-//                int startx = (y == miny ? x : ox), endx = (y == maxy ? x : ox);
-//                //剪切第一行的处理
-//                total -= clipboard.clip(currow, startx, currow->size);
-//                currow = currow->next;
-//                //剪切中间行的处理
-//                while(currow->num<maxy)
-//                {
-//                    total -= clipboard.clip(currow, -1, -1);
-//                    currow = currow->next;
-//                }
-//                //剪切最末行的处理
-//                total -= clipboard.clip(currow, 0, endx);
-//                x = startx;
-//                ox = x;
-//                y = miny;
-//                oy = y;
-//            }
             print(x, y, ox, oy);
             break;
         }
@@ -192,14 +162,65 @@ void MainWindow::exe(char order)
 
 void MainWindow::open()
 {
-    QMessageBox::information(this, tr("Information"), tr("Open"));
+    //定义文件对话框类
+    QFileDialog *fileDialog = new QFileDialog();
+    //定义文件对话框标题
+    fileDialog->setWindowTitle(tr("打开文件"));
+    //设置默认文件路径
+    fileDialog->setDirectory(".");
+    //设置视图模式
+    fileDialog->setViewMode(QFileDialog::Detail);
+    //打印所有选择的文件的路径
+    QString path = fileDialog->getOpenFileName();
+    QByteArray ba = path.toLatin1(); // must
+    filename = ba.data();
+    //将文件内容读入结构体
+    std::ifstream fin;
+    fin.open(filename, std::ios::in);
+    if (!fin.is_open())
+        QMessageBox::information(this, tr("打开文件"), tr("打开失败"));
+    else
+    {
+        std::string linetmp;
+        list currow = header;
+        int rownum = 0;
+        while (std::getline(fin, linetmp))
+        {
+            if (rownum != 0)
+            {
+                currow->next = new row;
+                currow = currow->next;
+                currow->num = rownum++;
+                currow->next = NULL;
+            }
+            if (currow == header)
+                rownum++;
+            total += linetmp.length();
+            currow->size = linetmp.length();
+            currow->total = (currow->size / 100 + 1) * 100;
+            currow->a = new char[currow->total];
+            strcpy(currow->a, linetmp.data());
+        }
+    }
+    print(0, 0, -1, -1);
 }
-void MainWindow::create()
-{
-    QMessageBox::information(this,tr("info"),tr("New"));
-}
+
 void MainWindow::save()
 {
+    if (filename)
+    {
+        std::ofstream fout;
+        fout.open(filename, std::ios::out);
+        list currow = header;
+        while (currow)
+        {
+            fout << currow->a;
+            currow = currow->next;
+            if (currow)
+                fout << "\n";
+        }
+        fout.close();
+    }
 
 }
 void MainWindow::quit()

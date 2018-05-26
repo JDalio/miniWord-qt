@@ -4,7 +4,6 @@ void board::refresh()
 {
     while (header)
     {
-//        qDebug() <<header->a <<endl;
         delete header->a;
         clipheader tmp = header;
         header = header->next;
