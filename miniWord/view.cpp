@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //Edit item in menu
     findAction = new QAction(tr("Find"),this);
     findAction->setShortcuts(QKeySequence::Find);
-    connect(findAction,&QAction::triggered,this,&MainWindow::find);
+    connect(findAction,&QAction::triggered,this,&MainWindow::createFindDlg);
 
     replaceAction = new QAction(tr("Replace"),this);
     replaceAction->setShortcuts(QKeySequence::Replace);
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *cenWid = new QWidget;
     this->setCentralWidget(cenWid);
     cenWid->setStyleSheet("background-color: white;color: black;");
-    cenWid->setFocusPolicy(Qt::StrongFocus);
+//    cenWid->setFocusPolicy(Qt::StrongFocus);
     cenWid->grabKeyboard();
     QVBoxLayout *pVlayout = new QVBoxLayout;
 
@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(blink()));
     timer->start(400);
  }
+
 ///** init the clipboard **/
 
     header=new row;
@@ -126,7 +127,6 @@ void MainWindow::print(int x, int y, int ox, int oy)
     }
     else
     {
-//        qDebug()<<"0";
         if(miny==maxy)
         {
             strncat(s1,currow->a,minx);
@@ -134,7 +134,6 @@ void MainWindow::print(int x, int y, int ox, int oy)
             strncat(s1,&currow->a[minx],maxx-minx);
             strcat(s1, "</span><span background-color:white;color:black;>");
             strcat(s1,&currow->a[maxx]);
-//            qDebug()<<"1";
         }
         else
         {
@@ -180,7 +179,6 @@ void MainWindow::print(int x, int y, int ox, int oy)
 
         currow=currow->next;
     }
-//    qDebug()<<"2";
     //格式化str1和str2，会自动在blink()中显示
     strcat(s1,"</span></pre>");
     char *tmp1=str1;
@@ -197,7 +195,6 @@ void MainWindow::print(int x, int y, int ox, int oy)
     }
     if(order_mod)
     {
-//        qDebug() << s1;
         QString s1=QString(QLatin1String(str1));
         delete s->widget();
         QLabel *label=new QLabel();

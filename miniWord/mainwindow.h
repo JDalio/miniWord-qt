@@ -17,6 +17,11 @@
 #include <QByteArray>
 #include <QCloseEvent>
 
+#include <QLineEdit>//仅用于查找输入框
+#include <QDialog>
+#include <QPushButton>
+#include <QInputDialog>
+
 #include "clipboard.h"
 
 
@@ -26,7 +31,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);
-
     ~MainWindow();
 /**
   整个程序采用一种"面对事件编程"的思路
@@ -44,9 +48,12 @@ protected:
     void exe(char ch);
     //点击关闭窗口按钮
     void closeEvent(QCloseEvent *event);
+    //KMP算法
+    htar find(char *target, htar head);
+    void getnext(char *p,int next[],int len);
+    void showPos();
     /** 数据结构的基本操作函数完 **/
 private:
-
     /** 编程主要用的后端的，及后端与前端公用的数据 !!!只可增加不可删除**/
     //核心的数据结构，每一行的堆就是malloc/new出来的数组
     list header;
@@ -82,7 +89,13 @@ private:
     void quit();
 
     //查找与替换    *****by Dalio
-    void find();
+    QString str="";
+    int findpos=-1;
+    htar head=NULL;
+    QLineEdit *findLineEdit;
+    QDialog *findDlg;
+
+    void createFindDlg();
 
     void replace();
     /** 后端的，及后端与前端公用的数据 完**/
@@ -105,7 +118,9 @@ private:
 
 private
     slots:
-    void blink();
+        void showpre();
+        void shownext();
+        void blink();
 };
 
 #endif // MAINWINDOW_H

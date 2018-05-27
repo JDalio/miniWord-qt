@@ -2,23 +2,8 @@
 #define CLIPBOARD_H
 #include <string.h>
 #include <QDebug>
+#include "dataformat.h"
 //数据结构中每一行的定义
-typedef struct row
-{
-    int num;//行号
-    char *a;//每一行数组的首地址
-    int total;
-    int size;//每行的实际字符数，是光标移动的右界
-    struct row *next;
-} row, *list;
-
-typedef struct clipdata
-{
-    char *a;
-    int size;
-    struct clipdata *next;
-} clipdata, *clipheader;
-
 class board
 {
 public:

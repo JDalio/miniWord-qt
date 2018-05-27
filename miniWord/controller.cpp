@@ -254,24 +254,181 @@ void MainWindow::closeEvent(QCloseEvent *event)
                   break;
               case 1:
               default:
+                if(filename!="")
                   event->ignore();
-                  break;
           }
     }
 
 }
+
 void MainWindow::quit()
 {
     this->close();
 }
-void MainWindow::find()
+
+void MainWindow::getnext(char *p,int next[],int len)
 {
+    next[0] = -1;
+    int k = -1;
+    int j = 0;
+    while (j < len - 1)
+    {
+        if (k == -1 || p[j] == p[k])
+        {
+            ++k;
+            ++j;
+            if (p[j] != p[k])
+                next[j] = k;
+            else
+                next[j] = next[k];
+        }
+        else k = next[k];
+    }
+}
+void MainWindow::showpre()
+{
+    if(findpos>0)
+        findpos--;
+    showPos();
+}
+void MainWindow::shownext()
+{
+    findpos++;
+    showPos();
+}
+
+void MainWindow::showPos()
+{
+    if(str=="")
+    {
+        str=findLineEdit->text();
+        if(str.length()==0)
+        {
+            QMessageBox::information(this, tr("查找文件"), tr("请输入待查字符串!"));
+        }
+        QByteArray ba = str.toLatin1();
+        char *target=ba.data();
+
+        int len = strlen(target);
+        int next[len];
+        getnext(target,next,len);
+        qDebug() <<"getnext";
+        htar curtar = head;
+        list currow = header;
+        //进入遍历寻找字符串
+        int sen_num = 0;
+        int i = 0;
+        int j = 0;
+        for(; currow != NULL; currow = currow->next,sen_num++)
+        {
+            //在一个块中，没有匹配完成/没有遇到空字符时
+            i=0;
+            while(i<currow->size)
+            {
+                j = 0;
+                while(currow->a[i] != '\0' && j < len)
+                {
+                    if(j == -1 || target[j] == currow->a[i])
+                    {
+                        i++;
+                        j++;
+                    }
+                    else
+                        j = next[j];
+
+                    //如果完成一次匹配，则重置j
+                    if(j == len)
+                    {
+                        if(curtar==NULL)
+                        {
+                            curtar=new pos_target;
+                            head=curtar;
+                        }
+                        else
+                        {
+                            curtar->next = new pos_target;
+                            curtar = curtar->next;
+                        }
+                        curtar->next=NULL;
+                        curtar->n_row = sen_num;//记录本次查找到的字符串所在行地址
+                        curtar->n_word = i - len;//记录字符串开头在本行中
+                    }
+                }
+            }
+        }
+    }
+
+
+    //打印位置
+    if(head)
+    {
+        htar tmp=head;
+        for(int i=0;i<findpos;i++)
+        {
+            if(tmp->next)
+            {
+                tmp=tmp->next;
+            }
+            else
+            {
+                QMessageBox::information(this, tr("查找文件"), tr("查找完毕!"));
+                str="";
+                findpos=-1;
+                tmp=head;
+                while(head)
+                {
+                    head=head->next;
+                    delete tmp;
+                    tmp=head;
+                }
+                tmp=NULL;
+                findDlg->close();
+                break;
+            }
+        }
+        if(tmp)
+        {
+            x=tmp->n_word;
+            y=tmp->n_row;
+            print(tmp->n_word,tmp->n_row,-1,-1);
+        }
+
+    }
+    else
+    {
+        QMessageBox::information(this, tr("查找文件"), tr("文件中没有待查字符串!"));
+        findDlg->close();
+        findpos=-1;
+        str="";
+    }
 
 }
+void MainWindow::createFindDlg()
+{
+
+//    创建查找窗口
+    findDlg = new QDialog(this);
+    findDlg->setWindowTitle(tr("查找"));
+    findLineEdit = new QLineEdit(findDlg);
+
+    QPushButton *nextbtn= new QPushButton(tr("下一个"), findDlg);
+    QPushButton *prebtn=new QPushButton(tr("上一个"), findDlg);
+
+    QVBoxLayout *layout= new QVBoxLayout(findDlg);
+    layout->addWidget(findLineEdit);
+    layout->addWidget(prebtn);
+    layout->addWidget(nextbtn);
+    findDlg->show();
+
+    connect(prebtn, SIGNAL(clicked()), this, SLOT(showpre()));
+    connect(nextbtn, SIGNAL(clicked()), this, SLOT(shownext()));
+}
+
 void MainWindow::replace()
 {
 
 }
+
 MainWindow::~MainWindow()
 {
     list tmp=header;

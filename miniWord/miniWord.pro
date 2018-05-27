@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     clipboard.cpp
 
 HEADERS  += mainwindow.h \
-    clipboard.h
+    clipboard.h \
+    dataformat.h
 
 FORMS    += mainwindow.ui
 
