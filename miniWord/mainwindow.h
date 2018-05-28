@@ -16,11 +16,9 @@
 #include <QString>
 #include <QByteArray>
 #include <QCloseEvent>
-
 #include <QLineEdit>//仅用于查找输入框
 #include <QDialog>
 #include <QPushButton>
-#include <QInputDialog>
 
 #include "clipboard.h"
 
@@ -57,14 +55,10 @@ private:
     /** 编程主要用的后端的，及后端与前端公用的数据 !!!只可增加不可删除**/
     //核心的数据结构，每一行的堆就是malloc/new出来的数组
     list header;
-    //hsen cursen;
-
     //整个数据结构的有效字符的数目
     int total=0;
     //当前窗口内的内容是否完整保存
     bool isSaved=true;
-    //整个数据结构在内存中的大小
-    //int size=0;
     //后端将数据结构中的数据处理成一个完整的html传给前端的字符串，需要加粗的位置用span标签包裹
     char *str1 = NULL, *str2 = NULL;
 
@@ -92,19 +86,24 @@ private:
     QString str="";
     int findpos=-1;
     htar head=NULL;
-    QLineEdit *findLineEdit;
-    QDialog *findDlg;
+
+    bool prepos=-2;
+    QDialog *findDlg=NULL;
+    QDialog *replaceDlg=NULL;
+    QLineEdit *findLineEdit=NULL;
+    QLineEdit *findLineEdit1=NULL;
+    QLineEdit *replaceLineEdit=NULL;
 
     void createFindDlg();
 
-    void replace();
+    void createReplaceDlg();
     /** 后端的，及后端与前端公用的数据 完**/
-    //剪贴板
-    board clipboard;
     //前端文本编辑的显示区域
     QLabel *pLabel;
     //滚动栏
     QScrollArea *s;
+    //剪贴板
+    board clipboard;
     //光标闪烁的计数器
     qint8 cursorTimer = 0;
 
@@ -120,6 +119,8 @@ private
     slots:
         void showpre();
         void shownext();
+        void replace();
+        void replaceall();
         void blink();
 };
 

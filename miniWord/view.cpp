@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
  {
     this->resize(QSize(550,600));
     setWindowTitle(tr("MiniWord"));
-
 //File item in menu
 
     openAction = new QAction(tr("&Open"), this);
@@ -29,20 +28,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     replaceAction = new QAction(tr("Replace"),this);
     replaceAction->setShortcuts(QKeySequence::Replace);
-    connect(quitAction,&QAction::triggered,this,&MainWindow::replace);
-    //qDebug()<<;
+    connect(replaceAction,&QAction::triggered,this,&MainWindow::createReplaceDlg);
+
     QMenu *file = menuBar()->addMenu(tr("&File"));
     file->addAction(openAction);
     file->addAction(saveAction);
     file->addAction(quitAction);
 
-
     QMenu *edit=menuBar()->addMenu(tr("&Edit"));
     edit->addAction(findAction);
     edit->addAction(replaceAction);
-
 //Text edit area
-    QWidget *cenWid = new QWidget;
+    QWidget *cenWid = new QWidget(this);
     this->setCentralWidget(cenWid);
     cenWid->setStyleSheet("background-color: white;color: black;");
 //    cenWid->setFocusPolicy(Qt::StrongFocus);
@@ -282,9 +279,7 @@ void MainWindow::blink()
              delete s->widget();
              QLabel *label=new QLabel();
              label->setText(s1);
-             //label->re
              s->setWidget(label);
-             //qDebug()<<"blink1";
          }
          else
          {
@@ -293,7 +288,6 @@ void MainWindow::blink()
              QLabel *label=new QLabel();
              label->setText(s2);
              s->setWidget(label);
-             //qDebug()<<"blink2";
          }
      }
 }

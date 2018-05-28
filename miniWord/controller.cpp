@@ -1,4 +1,5 @@
 #include <mainwindow.h>
+#include <QCoreApplication>
 #include <fstream>
 #include <string>
 //字符输入编辑数据结构然后更新屏幕字符串,x是行，y是列
@@ -288,7 +289,9 @@ void MainWindow::getnext(char *p,int next[],int len)
 void MainWindow::showpre()
 {
     if(findpos>0)
+    {
         findpos--;
+    }
     showPos();
 }
 void MainWindow::shownext()
@@ -301,7 +304,10 @@ void MainWindow::showPos()
 {
     if(str=="")
     {
-        str=findLineEdit->text();
+        if(findLineEdit1)
+            str=findLineEdit1->text();
+        else
+            str=findLineEdit->text();
         if(str.length()==0)
         {
             QMessageBox::information(this, tr("查找文件"), tr("请输入待查字符串!"));
@@ -312,7 +318,6 @@ void MainWindow::showPos()
         int len = strlen(target);
         int next[len];
         getnext(target,next,len);
-        qDebug() <<"getnext";
         htar curtar = head;
         list currow = header;
         //进入遍历寻找字符串
@@ -358,7 +363,6 @@ void MainWindow::showPos()
         }
     }
 
-
     //打印位置
     if(head)
     {
@@ -371,7 +375,11 @@ void MainWindow::showPos()
             }
             else
             {
-                QMessageBox::information(this, tr("查找文件"), tr("查找完毕!"));
+                if(findDlg)
+                {
+                    QMessageBox::information(this, tr("查找文件"), tr("查找完毕!"));
+                    findDlg->close();
+                }
                 str="";
                 findpos=-1;
                 tmp=head;
@@ -382,7 +390,6 @@ void MainWindow::showPos()
                     tmp=head;
                 }
                 tmp=NULL;
-                findDlg->close();
                 break;
             }
         }
@@ -396,8 +403,31 @@ void MainWindow::showPos()
     }
     else
     {
-        QMessageBox::information(this, tr("查找文件"), tr("文件中没有待查字符串!"));
-        findDlg->close();
+        if(!replaceDlg)
+        {
+            QMessageBox::information(this, tr("查找文件"), tr("文件中没有待查字符串!"));
+        }
+        else
+        {
+            QMessageBox::information(this, tr("替换文件"), tr("替换完毕!"));
+            findpos=-1;
+            prepos=-2;
+            str="";
+            htar tmp=head;
+            while(head)
+            {
+                head=head->next;
+                delete tmp;
+                tmp=head;
+            }
+            replaceDlg->close();
+            replaceDlg=NULL;
+            findLineEdit1=NULL;
+            replaceLineEdit=NULL;
+
+        }
+        if(findDlg)
+            findDlg->close();
         findpos=-1;
         str="";
     }
@@ -405,7 +435,6 @@ void MainWindow::showPos()
 }
 void MainWindow::createFindDlg()
 {
-
 //    创建查找窗口
     findDlg = new QDialog(this);
     findDlg->setWindowTitle(tr("查找"));
@@ -426,7 +455,156 @@ void MainWindow::createFindDlg()
 
 void MainWindow::replace()
 {
+    if(findLineEdit1->text()==""||replaceLineEdit->text()=="")
+    {
+        QMessageBox::information(this, tr("替换文件"), tr("请检查输入!"));
+    }
+    else
+    {
+        if(head)
+        {
+            htar tmp=head;
+            for(int i=0;i<findpos;i++)
+                if(tmp->next)
+                    tmp=tmp->next;
+                if(prepos!=findpos)
+                {
+                    QString rs=replaceLineEdit->text(),fs=findLineEdit1->text();
+                    std::string rss = rs.toStdString(),fss=fs.toStdString();
+                    const char *rstr = rss.c_str(),*fstr=fss.c_str();
+                    list currow=header;
+                    while(currow->num!=tmp->n_row)
+                        currow=currow->next;
 
+                    currow->size+=(strlen(rstr)-strlen(fstr));
+                    currow->total=(currow->size/100+1)*100;
+                    char *tmprowa=currow->a;
+                    currow->a=new char[currow->total];
+                    currow->a[0]='\0';
+                    strncat(currow->a,tmprowa,tmp->n_word);
+                    strcat(currow->a,rstr);
+                    strcat(currow->a,&tmprowa[tmp->n_word+strlen(fstr)]);
+                    delete tmprowa;
+                    print(tmp->n_word,tmp->n_row);
+                    findpos=-1;
+                    prepos=-2;
+                    str="";
+                    htar tmp=head;
+                    while(head)
+                    {
+                        head=head->next;
+                        delete tmp;
+                        tmp=head;
+                    }
+                }
+        }
+        else
+        {
+            QMessageBox::information(this, tr("替换文件"), tr("文件中或者当前位置没有待替换字符串!"));
+            findpos=-1;
+            prepos=-2;
+            str="";
+            htar tmp=head;
+            while(head)
+            {
+                head=head->next;
+                delete tmp;
+                tmp=head;
+            }
+            replaceDlg->close();
+            replaceDlg=NULL;
+            findLineEdit1=NULL;
+            replaceLineEdit=NULL;
+        }
+
+    }
+
+}
+void MainWindow::replaceall()
+{
+    if(findLineEdit1->text()==""||replaceLineEdit->text()=="")
+    {
+        QMessageBox::information(this, tr("替换文件"), tr("请检查输入!"));
+    }
+    else
+    {
+        showPos();
+        if(!head)
+        {
+            QMessageBox::information(this, tr("替换文件"), tr("没有匹配的字符串!"));
+        }
+        else
+        {
+            htar tmp=head;
+            QString rs=replaceLineEdit->text(),fs=findLineEdit1->text();
+            std::string rss = rs.toStdString(),fss=fs.toStdString();
+            const char *rstr = rss.c_str(),*fstr=fss.c_str();
+            while(tmp)
+            {
+                list currow=header;
+                while(currow->num!=tmp->n_row)
+                {
+                    currow=currow->next;
+                }
+                currow->size+=(strlen(rstr)-strlen(fstr));
+                currow->total=(currow->size/100+1)*100;
+                char *tmprowa=currow->a;
+                currow->a=new char[currow->total];
+                currow->a[0]='\0';
+                strncat(currow->a,tmprowa,tmp->n_word);
+                strcat(currow->a,rstr);
+                strcat(currow->a,&tmprowa[tmp->n_word+strlen(fstr)]);
+                tmp=tmp->next;
+                delete tmprowa;
+            }
+            x=0;y=0;
+            print(0,0,-1,-1);
+            findpos=-1;
+            str="";
+            tmp=head;
+            while(head)
+            {
+                head=head->next;
+                delete tmp;
+                tmp=head;
+            }
+            replaceDlg->close();
+            replaceDlg=NULL;
+            findLineEdit1=NULL;
+            replaceLineEdit=NULL;
+        }
+
+    }
+}
+
+void MainWindow::createReplaceDlg()
+{
+    //创建替换窗口
+    replaceDlg = new QDialog(this);
+    replaceDlg->setWindowTitle(tr("替换"));
+
+    findLineEdit1 = new QLineEdit(replaceDlg);
+    findLineEdit1->setPlaceholderText("查找");
+
+    replaceLineEdit = new QLineEdit(replaceDlg);
+    replaceLineEdit->setPlaceholderText("替换为");
+    QPushButton *nextbtn= new QPushButton(tr("下一个"), replaceDlg);
+    QPushButton *prebtn=new QPushButton(tr("上一个"), replaceDlg);
+    QPushButton *replacebtn=new QPushButton(tr("替换"), replaceDlg);
+    QPushButton *replaceallbtn=new QPushButton(tr("全部替换"), replaceDlg);
+    QVBoxLayout *layout= new QVBoxLayout(replaceDlg);
+    layout->addWidget(findLineEdit1);
+    layout->addWidget(replaceLineEdit);
+    layout->addWidget(replacebtn);
+    layout->addWidget(replaceallbtn);
+    layout->addWidget(prebtn);
+    layout->addWidget(nextbtn);
+    replaceDlg->show();
+
+    connect(prebtn, SIGNAL(clicked()), this, SLOT(showpre()));
+    connect(nextbtn, SIGNAL(clicked()), this, SLOT(shownext()));
+    connect(replacebtn, SIGNAL(clicked()), this, SLOT(replace()));
+    connect(replaceallbtn, SIGNAL(clicked()), this, SLOT(replaceall()));
 }
 
 MainWindow::~MainWindow()
