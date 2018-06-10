@@ -72,7 +72,7 @@ private:
     void print(int x, int y, int x1 = -1, int y1 = -1);
     //status bar 的提示信息，用于命令模式
     void hint(const char *hint);
-    //文件的基本操作 *****by Dalio
+    //文件的基本操作
     //文件名
     std::string filename = "";
 
@@ -82,7 +82,7 @@ private:
 
     void quit();
 
-    //查找与替换    *****by Dalio
+    //查找与替换
     QString str="";
     int findpos=-1;
     htar head=NULL;
